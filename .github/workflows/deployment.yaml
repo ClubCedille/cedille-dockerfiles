@@ -36,6 +36,7 @@ jobs:
           echo "Full version: $FULL_VERSION"
       
           VERSION=${FULL_VERSION#v}
+          VERSION=${VERSION%-grav*}
           echo "Version to be used: $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       
@@ -44,12 +45,12 @@ jobs:
           echo "Suffix: $SUFFIX"
           echo "PROJECT_DIR=$SUFFIX" >> $GITHUB_ENV
 
-          - name: Build and push
-          id: docker_build
-          uses: docker/build-push-action@v5
-          with:
-            context: ./${{ env.PROJECT_DIR }}
-            file: ./${{ env.PROJECT_DIR }}/Dockerfile
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ env.PROJECT_DIR }}
+          file: ./${{ env.PROJECT_DIR }}/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKER_HUB_NAMESPACE }}/${{ env.PROJECT_DIR }}:${{ env.VERSION }}
