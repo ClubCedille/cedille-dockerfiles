@@ -47,20 +47,21 @@ jobs:
 
       - id: release
         run: |
-          # Get latest tag, bump it, and append project name
-          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          # Get latest tag and bump it
+          LATEST_TAG=$(git describe --tags --match="*-${{ env.PROJECT_DIR }}" HEAD --abbrev=0)
           VERSION_NUM=${LATEST_TAG#v}
+          VERSION_NUM=${VERSION_NUM%-grav*}
           IFS='.' read -ra VERSION_PARTS <<< "$VERSION_NUM"
           PATCH=${VERSION_PARTS[2]}
           NEW_PATCH=$((PATCH + 1))
-          NEW_TAG="v${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$NEW_PATCH-${{ env.PROJECT_DIR }}"
+          NEW_TAG="v${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$NEW_PATCH"
           echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
 
       - name: Create a GitHub release for the new tag
         run: |
-          gh release create ${{ env.NEW_TAG }} \
-            --title "Release ${{ env.NEW_TAG }}" \
-            --notes "Release notes for ${{ env.NEW_TAG }}"
+          gh release create ${{ env.NEW_TAG }}-${{ env.PROJECT_DIR }} \
+            --title "Release ${{ env.NEW_TAG }}-${{ env.PROJECT_DIR }}" \
+            --notes "Release notes for ${{ env.NEW_TAG }}-${{ env.PROJECT_DIR }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
