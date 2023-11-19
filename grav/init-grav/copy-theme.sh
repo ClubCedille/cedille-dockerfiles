@@ -5,7 +5,7 @@ THEMES_DIR=/var/www/html/user/themes
 
 # Function to check if Grav is ready
 is_grav_ready() {
-    [ -d /var/www/html/grav ]
+    [ -d /var/www/html ]
 }
 
 # Wait for Grav to be ready
@@ -24,8 +24,12 @@ if [ -z "$(ls -A "$THEMES_DIR")" ]; then
     rsync -av /initial-content/ /var/www/html/
     # Change ownership of the copied content to www-data
     chown -R 33:33 /var/www/html
+    # Install git-sync plugin
+    cd /var/www/html
+    bin/gpm install git-sync
 else
     echo "Themes directory is not empty. Skipping copying initial content."
 fi
+
 
 

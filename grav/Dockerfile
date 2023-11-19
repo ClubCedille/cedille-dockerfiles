@@ -52,19 +52,13 @@ RUN pecl install apcu \
     && pecl install yaml \
     && docker-php-ext-enable apcu yaml
 
-# Set user to www-data
-RUN chown www-data:www-data /var/www
-USER www-data
-
 # Define Grav specific version of Grav or use latest stable
 ARG GRAV_VERSION=latest
 
-# Install Git Sync plugin
-RUN git clone https://github.com/getgrav/grav.git /var/www/html/grav && \
-    cd /var/www/html/grav && \
-    bin/gpm install git-sync
-
-RUN chown -R www-data:www-data /var/www/html
+# Set user to www-data
+RUN chown www-data:www-data /var/www
+USER www-data
+RUN mkdir -p /var/www/html
     
 # Create cron job for Grav maintenance scripts
 RUN (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
