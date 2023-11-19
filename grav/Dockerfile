@@ -68,6 +68,10 @@ RUN wget -O grav-admin.zip $GRAV_SKELETON_URL && \
     mv -T /var/www/grav-admin /var/www/html && \
     rm grav-admin.zip
 
+# Install Git Sync plugin
+RUN cd /var/www/html && \
+    bin/gpm install git-sync
+    
 # Create cron job for Grav maintenance scripts
 RUN (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
 
