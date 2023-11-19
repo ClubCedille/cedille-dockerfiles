@@ -59,18 +59,12 @@ USER www-data
 # Define Grav specific version of Grav or use latest stable
 ARG GRAV_VERSION=latest
 
-ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
-
-# Install grav
-WORKDIR /var/www
-RUN wget -O grav-admin.zip $GRAV_SKELETON_URL && \
-    unzip grav-admin.zip -d grav-admin && \
-    mv -T /var/www/grav-admin /var/www/html && \
-    rm grav-admin.zip
-
 # Install Git Sync plugin
-RUN cd /var/www/html && \
+RUN git clone https://github.com/getgrav/grav.git /var/www/html/grav && \
+    cd /var/www/html/grav && \
     bin/gpm install git-sync
+
+RUN chown -R www-data:www-data /var/www/html
     
 # Create cron job for Grav maintenance scripts
 RUN (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
@@ -83,6 +77,9 @@ USER root
 
 # provide container inside image for data persistence
 VOLUME ["/var/www/html"]
+
+# Set ServerName to localhost to avoid FQDN warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # ENTRYPOINT ["/entrypoint.sh"]
 # CMD ["apache2-foreground"]
