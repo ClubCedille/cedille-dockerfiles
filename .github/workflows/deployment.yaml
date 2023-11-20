@@ -1,68 +1,90 @@
-# disabled until further notice. we are currently pushing images manually
-# name: Docker
+# Manual build/push fo now
+name: Image build
 
-# on:
-#   push:
-#     tags:
-#       - 'v*.*.*-*'
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        required: true
+        description: Image a build
+        type: choice
+        options:
+          - grav
+          - vault
+      tag:
+        required: true
+        description: Version a tag l'image
+  # push:
+  #   tags:
+  #     - 'v*.*.*-*'
 
-# jobs:
-#   build-on-release:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Check Out Repo
-#         uses: actions/checkout@v4
+env:
+  REGISTRY: ghcr.io/ClubCedille
 
-#       - name: Set up Docker Buildx
-#         id: buildx
-#         uses: docker/setup-buildx-action@v3
+jobs:
+  build-on-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Out Repo
+        uses: actions/checkout@v4
 
-#       - name: Login to Docker Hub
-#         uses: docker/login-action@v3
-#         with:
-#           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
 
-#       - name: Cache Docker layers
-#         uses: actions/cache@v3
-#         with:
-#           path: /tmp/.buildx-cache
-#           key: ${{ runner.os }}-buildx-${{ github.sha }}
-#           restore-keys: ${{ runner.os }}-buildx
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v3
+      #   with:
+      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
+      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-#       - name: Get Tag Version
-#         id: tag
-#         run: |
-#           FULL_VERSION=${GITHUB_REF#refs/tags/}
-#           echo "Full version: $FULL_VERSION"
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-buildx
+
+      # - name: Get Tag Version
+      #   id: tag
+      #   run: |
+      #     FULL_VERSION=${GITHUB_REF#refs/tags/}
+      #     echo "Full version: $FULL_VERSION"
       
-#           VERSION=${FULL_VERSION#v}
-#           VERSION=${VERSION%-grav*}
-#           echo "Version to be used: $VERSION"
-#           echo "VERSION=$VERSION" >> $GITHUB_ENV
+      #     VERSION=${FULL_VERSION#v}
+      #     VERSION=${VERSION%-grav*}
+      #     echo "Version to be used: $VERSION"
+      #     echo "VERSION=$VERSION" >> $GITHUB_ENV
       
-#           # Extract project name after '-'
-#           SUFFIX=${FULL_VERSION#*-}
-#           echo "Suffix: $SUFFIX"
-#           echo "PROJECT_DIR=$SUFFIX" >> $GITHUB_ENV
+      #     # Extract project name after '-'
+      #     SUFFIX=${FULL_VERSION#*-}
+      #     echo "Suffix: $SUFFIX"
+      #     echo "PROJECT_DIR=$SUFFIX" >> $GITHUB_ENV
 
-#       - name: Build and push
-#         id: docker_build
-#         uses: docker/build-push-action@v5
-#         with:
-#           context: ./${{ env.PROJECT_DIR }}
-#           file: ./${{ env.PROJECT_DIR }}/Dockerfile
-#           push: true
-#           tags: |
-#             ${{ secrets.DOCKER_HUB_NAMESPACE }}/${{ env.PROJECT_DIR }}:${{ env.VERSION }}
-#             ${{ secrets.DOCKER_HUB_NAMESPACE }}/${{ env.PROJECT_DIR }}:latest
-#           cache-from: type=local,src=/tmp/.buildx-cache
-#           cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ inputs.image }}
+          file: ./${{ inputs.image }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ inputs.image }}:${{ inputs.version }}
+            ${{ env.REGISTRY }}/${{ inputs.image }}:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
 
-#       - name: Refresh Cache
-#         run: |
-#           rm -rf /tmp/.buildx-cache
-#           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      - name: Refresh Cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
-#       - name: Image digest
-#         run: echo ${{ steps.docker_build.outputs.digest }}
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
