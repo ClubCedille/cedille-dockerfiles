@@ -19,7 +19,7 @@ on:
   #     - 'v*.*.*-*'
 
 env:
-  REGISTRY: ghcr.io/ClubCedille
+  REGISTRY: ghcr.io/clubcedille
 
 jobs:
   build-on-release:
