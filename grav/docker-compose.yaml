@@ -2,8 +2,6 @@ version: '3.8'
 
 services:
   grav-init:
-    depends_on:
-      - grav
     build:
       context: ./init-grav
       dockerfile: Dockerfile
@@ -12,6 +10,8 @@ services:
       - grav_data:/var/www/html
 
   grav:
+    depends_on:
+      - grav-init
     build: .
     container_name: grav_cms
     ports:
