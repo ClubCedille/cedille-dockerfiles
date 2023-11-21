@@ -17,7 +17,7 @@ if [ -z "$(ls -A "$THEMES_DIR")" ]; then
     cd /var/www/html
     bin/gpm install git-sync
     # Configures git-sync plugin 
-    RUN ln -s /vault/secrets/grav /var/www/html/user/config/plugins/git-sync.yaml
+    ln -s /vault/secrets/grav /var/www/html/user/config/plugins/git-sync.yaml
 else
     echo "Themes directory is not empty. Skipping copying initial content."
 fi
