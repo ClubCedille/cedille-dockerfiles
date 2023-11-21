@@ -59,6 +59,10 @@ ARG GRAV_VERSION=latest
 RUN chown www-data:www-data /var/www
 USER www-data
 RUN mkdir -p /var/www/html
+
+
+# Configures git-sync plugin 
+RUN ln -s /vault/secrets/grav /var/www/html/user/config/plugins/git-sync.yaml
     
 # Create cron job for Grav maintenance scripts
 RUN (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
