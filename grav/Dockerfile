@@ -58,7 +58,7 @@ ARG GRAV_VERSION=latest
 # Set user to www-data
 RUN chown www-data:www-data /var/www
 USER www-data
-RUN mkdir -p /var/www/html
+RUN mkdir -p /var/www/html/user/config/plugins/
 
 
 # Configures git-sync plugin 
