@@ -54,6 +54,7 @@ RUN pecl install apcu \
 
 # Set ServerName to localhost to avoid FQDN warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN echo "Listen 8080" >> /etc/apache2/ports.conf
 
 # Define Grav specific version of Grav or use latest stable
 ARG GRAV_VERSION=latest
