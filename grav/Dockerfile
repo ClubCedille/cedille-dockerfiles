@@ -23,6 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cron \
     vim \
     wget \
+    rsync \
     && docker-php-ext-install opcache \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
@@ -73,7 +74,7 @@ RUN crontab \
 # USER root
 
 # Copy init scripts
-# COPY entrypoint.sh /entrypoint.sh
+COPY init.sh /init.sh
 
 # provide container inside image for data persistence
 VOLUME ["/var/www/html"]
