@@ -16,6 +16,10 @@ if [ -z "$(ls -A /var/www/html/user/.git)" ]; then
     ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
     git config --global --add safe.directory /var/www/html/user
     bin/plugin git-sync init
+    cd /var/www/html/user
+    DEFAULT_BRANCH="$(git symbolic-ref refs/remotes/origin/HEAD --short)"
+    git reset --hard $DEFAULT_BRANCH
+    git pull $DEFAULT_BRANCH
     echo "done"
 else
     echo "git already initialized, continuing"
