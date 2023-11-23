@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - grav
+          - init-grav
           - vault
       tag:
         required: true

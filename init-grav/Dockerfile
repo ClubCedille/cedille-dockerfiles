@@ -11,6 +11,8 @@ RUN wget "$GRAV_SKELETON_URL" -O theme.zip \
     && rm theme.zip \ 
     && git clone https://github.com/getgrav/grav.git grav
 
-COPY copy-theme.sh /copy-theme.sh
-RUN chmod +x /copy-theme.sh
-ENTRYPOINT ["/copy-theme.sh"]
+COPY init.sh /init.sh
+RUN chmod +x /init.sh
+
+USER 33
+ENTRYPOINT ["/init.sh"]

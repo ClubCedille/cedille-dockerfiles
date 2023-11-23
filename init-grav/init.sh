@@ -22,5 +22,13 @@ else
     echo "Themes directory is not empty. Skipping copying initial content."
 fi
 
-
-
+if [ -z "$(ls -A /var/www/html/user/.git)" ]; then
+echo "git not initialized, running init script..."
+    rm /var/www/html/user/config/plugins/git-sync.yaml
+    ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
+    git config --global --add safe.directory /var/www/html/user
+    bin/plugin git-sync init
+    echo "done"
+else
+    echo "git already initialized, continuing"
+fi

@@ -52,30 +52,31 @@ RUN pecl install apcu \
     && pecl install yaml \
     && docker-php-ext-enable apcu yaml
 
+# Set ServerName to localhost to avoid FQDN warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Define Grav specific version of Grav or use latest stable
 ARG GRAV_VERSION=latest
 
-# Set user to www-data
 RUN chown www-data:www-data /var/www
+# Set user to www-data
 USER www-data
-RUN mkdir -p /var/www/html
+RUN mkdir -p /var/www/html/user
 
     
 # Create cron job for Grav maintenance scripts
-RUN (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
+RUN crontab \ 
+    && (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
 
 # Return to root user
-USER root
+# USER root
 
 # Copy init scripts
-# COPY docker-entrypoint.sh /entrypoint.sh
+COPY entrypoint.sh /entrypoint.sh
 
 # provide container inside image for data persistence
 VOLUME ["/var/www/html"]
 
-# Set ServerName to localhost to avoid FQDN warning
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
 # ENTRYPOINT ["/entrypoint.sh"]
-# CMD ["apache2-foreground"]
-CMD ["sh", "-c", "cron && apache2-foreground"]
+CMD ["apache2-foreground"]
+# CMD ["sh", "/entrypoint.sh"]
