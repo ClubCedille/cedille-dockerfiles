@@ -72,7 +72,7 @@ RUN crontab \
 # USER root
 
 # Copy init scripts
-COPY entrypoint.sh /entrypoint.sh
+# COPY entrypoint.sh /entrypoint.sh
 
 # provide container inside image for data persistence
 VOLUME ["/var/www/html"]
