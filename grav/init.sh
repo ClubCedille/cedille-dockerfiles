@@ -1,28 +1,16 @@
 #!/bin/sh
-# copy-theme.sh
 
 sleep 10
 
-THEMES_DIR=/var/www/html/user/themes
-echo " Copying theme..."
-
-# Create the themes directory if it does not exist
-[ ! -d "$THEMES_DIR" ] && mkdir -p "$THEMES_DIR"
-
-# Use rsync to copy the initial content
-if [ -z "$(ls -A "$THEMES_DIR")" ]; then
-    rsync -av /initial-content/ /var/www/html/
-    # Install git-sync plugin
-    cd /var/www/html
-    bin/gpm install git-sync
-    # Configures git-sync plugin 
-    ln -s /vault/secrets/grav /var/www/html/user/config/plugins/git-sync.yaml
-else
-    echo "Themes directory is not empty. Skipping copying initial content."
-fi
+GRAV_SKELETON_URL=https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
 
 if [ -z "$(ls -A /var/www/html/user/.git)" ]; then
     echo "git not initialized, running init script..."
+    cd /var/www/html/
+    wget "$GRAV_SKELETON_URL" -O skeleton.zip
+    unzip skeleton.zip
+    # Install git-sync plugin
+    bin/gpm install git-sync
     cd /var/www/html
     rm /var/www/html/user/config/plugins/git-sync.yaml
     ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"

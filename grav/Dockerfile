@@ -63,7 +63,6 @@ ARG GRAV_VERSION=latest
 RUN chown www-data:www-data /var/www
 # Set user to www-data
 USER www-data
-RUN mkdir -p /var/www/html/user
 
     
 # Create cron job for Grav maintenance scripts
