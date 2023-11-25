@@ -59,25 +59,32 @@ RUN echo "Listen 8080" > /etc/apache2/ports.conf
 
 # Define Grav specific version of Grav or use latest stable
 ARG GRAV_VERSION=latest
+ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
 
 RUN chown www-data:www-data /var/www
 # Set user to www-data
 USER www-data
 
-    
 # Create cron job for Grav maintenance scripts
 RUN crontab \ 
     && (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
+
+# Init operations
+RUN cd /var/www/html/ && \
+    wget $GRAV_SKELETON_URL -O skeleton.zip && \
+    unzip skeleton.zip && \
+    bin/gpm install git-sync && \
+    git config --global --add safe.directory /var/www/html/user
 
 # Return to root user
 # USER root
 
 # Copy init scripts
-COPY init.sh /init.sh
+COPY entrypoint.sh /entrypoint.sh
 
 # provide container inside image for data persistence
 VOLUME ["/var/www/html"]
 
-# ENTRYPOINT ["/entrypoint.sh"]
-CMD ["apache2-foreground"]
-# CMD ["sh", "/entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
+# CMD ["apache2-foreground"]
+# CMD ["sh", "/entrypoint.sh"]pache2-foregroun
