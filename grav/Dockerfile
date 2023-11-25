@@ -60,6 +60,7 @@ RUN echo "Listen 8080" > /etc/apache2/ports.conf
 # Define Grav specific version of Grav or use latest stable
 ARG GRAV_VERSION=latest
 ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav/releases/download/1.7.0/grav-admin-v1.7.0.zip
+ARF GRAV_SKELETON_FOLDER=grav-admin
 #https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
 
 RUN chown www-data:www-data /var/www
@@ -74,6 +75,7 @@ RUN crontab \
 RUN cd /var/www/html/ && \
     wget $GRAV_SKELETON_URL -O skeleton.zip && \
     unzip skeleton.zip && \
+    mv $GRAV_SKELETON_FOLDER/* . && \
     bin/gpm install git-sync && \
     git config --global --add safe.directory /var/www/html/user
 
