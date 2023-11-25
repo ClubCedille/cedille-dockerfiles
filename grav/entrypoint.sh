@@ -1,16 +1,18 @@
 #!/bin/sh
 
-if [ -z "$(ls -A /var/www/html/user/.git)" ]; then
-    cd /var/www/html/
-    echo "git not initialized, running init script..."
-    ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
-    bin/plugin git-sync init
-    bin/plugin git-sync sync > /dev/null
-    cd /var/www/html/user
-    git pull origin $HEAD_BRANCH
-    echo "done"
-else
-    echo "git already initialized, continuing"
+echo "initialiazing git setup..."
+cd /var/www/html/
+ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
+bin/plugin git-sync init
+bin/plugin git-sync sync > /dev/null
+cd /var/www/html/user
+git pull origin $HEAD_BRANCH
+echo "done"
+
+if [ -z "$(ls -A /var/www/html/user/accounts/admin.yaml)" ]; then
+    echo "Creating admin user..."
+    ln -s "/vault/secrets/$ADMIN_VAULT_SECRET" /var/www/html/user/accounts/admin.yaml
+    echo done
 fi
 
 apache2-foreground
