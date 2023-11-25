@@ -1,6 +1,7 @@
 #!/bin/sh
 
 if [ -z "$(ls -A /var/www/html/user/.git)" ]; then
+    cd /var/www/html/
     echo "git not initialized, running init script..."
     ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
     bin/plugin git-sync init
