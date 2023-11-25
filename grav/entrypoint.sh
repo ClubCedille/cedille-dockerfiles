@@ -1,6 +1,7 @@
 #!/bin/sh
 
 echo "initialiazing git setup..."
+mkdir -p /var/www/html/user/config/plugins
 cd /var/www/html/
 ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
 bin/plugin git-sync init
