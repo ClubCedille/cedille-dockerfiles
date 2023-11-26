@@ -14,4 +14,7 @@ echo "Creating admin user..."
 cp "/vault/secrets/$ADMIN_VAULT_SECRET" /var/www/html/user/accounts/admin.yaml
 echo done
 
+rm /var/www/html/user/config/security.yaml
+ln -s /vault/secrets/salt /var/www/html/user/config/security.yaml
+
 apache2-foreground
