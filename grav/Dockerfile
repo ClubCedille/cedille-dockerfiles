@@ -75,7 +75,7 @@ RUN crontab \
 RUN cd /var/www/html/ && \
     wget $GRAV_SKELETON_URL -O skeleton.zip && \
     unzip skeleton.zip && \
-    mv $GRAV_SKELETON_FOLDER/* . && mv $GRAV_SKELETON_FOLDER/.* . && \
+    mv $GRAV_SKELETON_FOLDER/* . && mv $GRAV_SKELETON_FOLDER/.* . 2>/dev/null; true && \
     bin/gpm install git-sync && \
     git config --global --add safe.directory /var/www/html/user
 
