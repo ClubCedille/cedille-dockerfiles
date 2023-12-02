@@ -10,8 +10,14 @@ cd /var/www/html/user
 git pull origin $HEAD_BRANCH
 echo "done"
 
-echo "Creating admin user..."
-cp "/vault/secrets/$ADMIN_VAULT_SECRET" /var/www/html/user/accounts/admin.yaml
+if [ ! -f "/var/www/html/user/accounts/admin.yaml" ]; then
+  echo "Creating admin user..."
+  cp "/vault/secrets/$ADMIN_VAULT_SECRET" /var/www/html/user/accounts/admin.yaml
+  echo done
+fi
+
+echo "Creating sre user..."
+cp "/vault/secrets/$SRE_VAULT_SECRET" /var/www/html/user/accounts/sre.yaml
 echo done
 
 rm /var/www/html/user/config/security.yaml
