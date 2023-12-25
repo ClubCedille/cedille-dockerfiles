@@ -12,6 +12,7 @@ on:
           - grav
           - init-grav
           - vault
+          - mongo
       tag:
         required: true
         description: Version a tag l'image
