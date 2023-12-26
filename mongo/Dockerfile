@@ -1,4 +1,7 @@
-FROM mongo:latest
+FROM mongo:6-jammy
 
-COPY init-script.sh /docker-entrypoint-initdb.d/
+ENV MONGO_INITDB_ROOT_USERNAME admin
+ENV MONGO_INITDB_ROOT_PASSWORD secret
+ENV MONGO_INITDB_DATABASE admin
 
+ADD mongo-init.js /docker-entrypoint-initdb.d/
