@@ -5,3 +5,5 @@ ENV MONGO_INITDB_ROOT_PASSWORD secret
 ENV MONGO_INITDB_DATABASE admin
 
 ADD mongo-init.js /docker-entrypoint-initdb.d/
+
+ENTRYPOINT ["mongod", "--auth", "--bind_ip_all", "--port", "27017"]
