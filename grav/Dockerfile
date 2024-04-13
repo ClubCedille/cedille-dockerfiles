@@ -1,4 +1,4 @@
-FROM php:8.2.12-apache-bullseye
+FROM php:8.3.6-apache-bullseye
 LABEL maintainer="Andy Miller <rhuk@getgrav.org> (@rhukster)"
 
 
