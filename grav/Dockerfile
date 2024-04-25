@@ -1,4 +1,4 @@
-FROM php:8.2.12-apache-bullseye
+FROM php:8.3.6-apache-bullseye
 LABEL maintainer="Andy Miller <rhuk@getgrav.org> (@rhukster)"
 
 
@@ -45,6 +45,7 @@ RUN { \
     echo 'upload_max_filesize=128M'; \
     echo 'post_max_size=128M'; \
     echo 'expose_php=off'; \
+    echo 'memory_limit=2048M'; \
     } > /usr/local/etc/php/conf.d/php-recommended.ini
 
 RUN pecl channel-update pecl.php.net
@@ -58,7 +59,7 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN echo "Listen 8080" > /etc/apache2/ports.conf
 
 # Define Grav specific version of Grav or use latest stable
-ARG GRAV_VERSION=1.7.43
+ARG GRAV_VERSION=1.7.45
 ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav/releases/download/$GRAV_VERSION/grav-admin-v$GRAV_VERSION.zip
 ARG GRAV_SKELETON_FOLDER=grav-admin
 #https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
