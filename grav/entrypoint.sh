@@ -7,7 +7,8 @@ ln -s "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-
 bin/plugin git-sync init
 bin/plugin git-sync sync > /dev/null
 cd /var/www/html/user
-git pull origin $HEAD_BRANCH
+git fetch origin
+git reset --hard origin/master
 echo "done"
 
 if [ ! -f "/var/www/html/user/accounts/admin.yaml" ]; then
