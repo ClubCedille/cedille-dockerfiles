@@ -1,4 +1,4 @@
-FROM mongo:6-jammy
+FROM mongo:7-jammy
 
 ENV MONGO_INITDB_ROOT_USERNAME admin
 ENV MONGO_INITDB_ROOT_PASSWORD secret
