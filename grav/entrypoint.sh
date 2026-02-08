@@ -11,10 +11,14 @@ GIT_PASS=$(grep "^password:" "$GIT_CONFIG" | sed "s/password: *['\"]*//" | sed "
 # Build authenticated URL
 AUTH_URL=$(echo "$REPO_URL" | sed "s|https://|https://${GIT_USER}:${GIT_PASS}@|")
 
-# Clean user directory and clone repo directly (avoids git-sync merge conflicts)
+# Fetch and hard reset repo content (works even if directory is not empty)
 cd /var/www/html/user
-rm -rf .git ./* ./.[!.]* 2>/dev/null
-git clone --branch ${HEAD_BRANCH:-main} "$AUTH_URL" .
+rm -rf .git
+git init
+git remote add origin "$AUTH_URL"
+git fetch origin
+git reset --hard origin/${HEAD_BRANCH:-main}
+git branch --set-upstream-to=origin/${HEAD_BRANCH:-main}
 echo "done"
 
 # Create symlinks to vault secrets (after clone so they don't get overwritten)
