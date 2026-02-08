@@ -4,16 +4,17 @@ echo "initialiazing git setup..."
 mkdir -p /var/www/html/user/config/plugins
 cd /var/www/html/
 
-# Create temporary symlink for git-sync init/sync
+# Use git-sync init to set up repo config (but skip sync to avoid merge conflicts)
 ln -sf "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
 bin/plugin git-sync init
-bin/plugin git-sync sync > /dev/null
+
+# Fetch and hard reset to remote branch (clean, no merge)
 cd /var/www/html/user
 git fetch origin
 git reset --hard origin/${HEAD_BRANCH:-main}
 echo "done"
 
-# Re-create symlinks AFTER git reset (which overwrites them with repo content)
+# Create symlinks to vault secrets (after git reset so they don't get overwritten)
 ln -sf "/vault/secrets/$GIT_VAULT_SECRET" /var/www/html/user/config/plugins/git-sync.yaml
 mkdir -p /var/www/html/user/config
 ln -sf /vault/secrets/salt /var/www/html/user/config/security.yaml
