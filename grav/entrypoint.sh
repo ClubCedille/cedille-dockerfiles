@@ -11,7 +11,7 @@ GIT_PASS=$(grep "^password:" "$GIT_CONFIG" | sed "s/password: *['\"]*//" | sed "
 # Build authenticated URL
 AUTH_URL=$(echo "$REPO_URL" | sed "s|https://|https://${GIT_USER}:${GIT_PASS}@|")
 
-# Fetch and hard reset repo content (works even if directory is not empty)
+# Fetch and hard reset repo content
 cd /var/www/html/user
 rm -rf .git
 git init -b ${HEAD_BRANCH:-main}
