@@ -14,7 +14,7 @@ AUTH_URL=$(echo "$REPO_URL" | sed "s|https://|https://${GIT_USER}:${GIT_PASS}@|"
 # Fetch and hard reset repo content (works even if directory is not empty)
 cd /var/www/html/user
 rm -rf .git
-git init
+git init -b ${HEAD_BRANCH:-main}
 git remote add origin "$AUTH_URL"
 git fetch origin
 git reset --hard origin/${HEAD_BRANCH:-main}
