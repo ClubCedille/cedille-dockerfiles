@@ -46,6 +46,8 @@ RUN { \
     echo 'post_max_size=128M'; \
     echo 'expose_php=off'; \
     echo 'memory_limit=2048M'; \
+    echo 'display_errors=Off'; \
+    echo 'error_reporting=E_ALL & ~E_DEPRECATED & ~E_STRICT'; \
     } > /usr/local/etc/php/conf.d/php-recommended.ini
 
 RUN pecl channel-update pecl.php.net
