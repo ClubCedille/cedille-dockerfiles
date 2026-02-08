@@ -8,7 +8,7 @@ bin/plugin git-sync init
 bin/plugin git-sync sync > /dev/null
 cd /var/www/html/user
 git fetch origin
-git reset --hard origin/main
+git reset --hard origin/${HEAD_BRANCH:-main}
 echo "done"
 
 if [ ! -f "/var/www/html/user/accounts/admin.yaml" ]; then
