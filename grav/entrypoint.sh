@@ -21,7 +21,8 @@ echo "Creating sre user..."
 cp "/vault/secrets/$SRE_VAULT_SECRET" /var/www/html/user/accounts/sre.yaml
 echo done
 
-rm /var/www/html/user/config/security.yaml
+mkdir -p /var/www/html/user/config
+rm -f /var/www/html/user/config/security.yaml
 ln -s /vault/secrets/salt /var/www/html/user/config/security.yaml
 
 apache2-foreground
