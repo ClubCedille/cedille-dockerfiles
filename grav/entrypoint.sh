@@ -18,6 +18,7 @@ git init -b ${HEAD_BRANCH:-main}
 git remote add origin "$AUTH_URL"
 git fetch origin
 git reset --hard origin/${HEAD_BRANCH:-main}
+git clean -fd
 git branch --set-upstream-to=origin/${HEAD_BRANCH:-main}
 echo "done"
 
