@@ -1,20 +1,24 @@
 #!/bin/sh
 
 echo "initialiazing git setup..."
-mkdir -p /var/www/html/user/config/plugins
-cd /var/www/html/
 
-# Use git-sync init to set up repo config (but skip sync to avoid merge conflicts)
-ln -sf "/vault/secrets/$GIT_VAULT_SECRET" "/var/www/html/user/config/plugins/git-sync.yaml"
-bin/plugin git-sync init
+# Parse git-sync vault config for repo details
+GIT_CONFIG="/vault/secrets/$GIT_VAULT_SECRET"
+REPO_URL=$(grep "^repository:" "$GIT_CONFIG" | sed "s/repository: *['\"]*//" | sed "s/['\"].*//")
+GIT_USER=$(grep "^user:" "$GIT_CONFIG" | sed "s/user: *['\"]*//" | sed "s/['\"].*//")
+GIT_PASS=$(grep "^password:" "$GIT_CONFIG" | sed "s/password: *['\"]*//" | sed "s/['\"].*//")
 
-# Fetch and hard reset to remote branch (clean, no merge)
+# Build authenticated URL
+AUTH_URL=$(echo "$REPO_URL" | sed "s|https://|https://${GIT_USER}:${GIT_PASS}@|")
+
+# Clean user directory and clone repo directly (avoids git-sync merge conflicts)
 cd /var/www/html/user
-git fetch origin
-git reset --hard origin/${HEAD_BRANCH:-main}
+rm -rf .git ./* ./.[!.]* 2>/dev/null
+git clone --branch ${HEAD_BRANCH:-main} "$AUTH_URL" .
 echo "done"
 
-# Create symlinks to vault secrets (after git reset so they don't get overwritten)
+# Create symlinks to vault secrets (after clone so they don't get overwritten)
+mkdir -p /var/www/html/user/config/plugins
 ln -sf "/vault/secrets/$GIT_VAULT_SECRET" /var/www/html/user/config/plugins/git-sync.yaml
 mkdir -p /var/www/html/user/config
 ln -sf /vault/secrets/salt /var/www/html/user/config/security.yaml
@@ -22,11 +26,11 @@ ln -sf /vault/secrets/salt /var/www/html/user/config/security.yaml
 if [ ! -f "/var/www/html/user/accounts/admin.yaml" ]; then
   echo "Creating admin user..."
   cp "/vault/secrets/$ADMIN_VAULT_SECRET" /var/www/html/user/accounts/admin.yaml
-  echo done
+  echo "Admin user created."
 fi
 
-echo "Creating sre user..."
+echo "Creating SRE user..."
 cp "/vault/secrets/$SRE_VAULT_SECRET" /var/www/html/user/accounts/sre.yaml
-echo done
+echo "SRE user created."
 
 apache2-foreground
