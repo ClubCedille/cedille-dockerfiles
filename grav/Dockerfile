@@ -64,7 +64,7 @@ RUN echo "Listen 8080" > /etc/apache2/ports.conf
 ARG GRAV_VERSION=1.7.49.5
 ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav/releases/download/$GRAV_VERSION/grav-admin-v$GRAV_VERSION.zip
 
-# Create cron job for Grav maintenance scripts
+# Create cron job for Grav maintenance scripts 
 RUN crontab -u www-data -l 2>/dev/null; \
     echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1" | crontab -u www-data -
 
