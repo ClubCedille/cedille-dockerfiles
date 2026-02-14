@@ -15,6 +15,8 @@ AUTH_URL=$(echo "$REPO_URL" | sed "s|https://|https://${GIT_USER}:${GIT_PASS}@|"
 cd /var/www/html/user
 rm -rf .git
 git init -b ${HEAD_BRANCH:-main}
+git config user.name "GitSync"
+git config user.email "git-sync@trilby.media"
 git remote add origin "$AUTH_URL"
 git fetch origin
 git reset --hard origin/${HEAD_BRANCH:-main}
