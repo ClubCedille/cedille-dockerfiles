@@ -84,7 +84,9 @@ RUN cd /var/www/html/ && \
     rm -rf /tmp/skeleton skeleton.zip && \
     bin/gpm selfupgrade -f -y && \
     bin/gpm install git-sync && \
-    git config --global --add safe.directory /var/www/html/user
+    git config --global --add safe.directory /var/www/html/user && \
+    git config --global user.name "GitSync" && \
+    git config --global user.email "git-sync@trilby.media"
 
 # Copy init scripts
 COPY entrypoint.sh /entrypoint.sh
