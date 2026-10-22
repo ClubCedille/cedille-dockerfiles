@@ -1,4 +1,4 @@
-FROM php:8.4.10-apache-bullseye
+FROM php:8.4.27-apache-bookworm
 LABEL maintainer="Andy Miller <rhuk@getgrav.org> (@rhukster)"
 
 
@@ -59,7 +59,7 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN echo "Listen 8080" > /etc/apache2/ports.conf
 
 # Define Grav specific version of Grav or use latest stable
-ARG GRAV_VERSION=1.7.45
+ARG GRAV_VERSION=1.7.53.5
 ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav/releases/download/$GRAV_VERSION/grav-admin-v$GRAV_VERSION.zip
 ARG GRAV_SKELETON_FOLDER=grav-admin
 #https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
@@ -69,7 +69,7 @@ RUN chown www-data:www-data /var/www
 USER www-data
 
 # Create cron job for Grav maintenance scripts
-RUN crontab \ 
+RUN crontab \
     && (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
 
 # Init operations
