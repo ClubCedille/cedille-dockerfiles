@@ -60,7 +60,7 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN echo "Listen 80" > /etc/apache2/ports.conf
 
 
-ARG GRAV_VERSION=1.7.45
+ARG GRAV_VERSION=1.7.53.5
 
 ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav/releases/download/$GRAV_VERSION/grav-admin-v$GRAV_VERSION.zip
 ARG GRAV_SKELETON_FOLDER=grav-admin

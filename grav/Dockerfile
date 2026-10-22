@@ -1,4 +1,4 @@
-FROM php:8.4.10-apache-bullseye
+FROM php:8.4.27-apache-bookworm
 LABEL maintainer="Andy Miller <rhuk@getgrav.org> (@rhukster)"
 
 
@@ -60,8 +60,9 @@ RUN pecl install apcu \
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN echo "Listen 8080" > /etc/apache2/ports.conf
 
-# Define Grav version and skeleton URL (override GRAV_SKELETON_URL for custom skeletons)
-ARG GRAV_VERSION=1.7.49.5
+# Define Grav specific version of Grav or use latest stable
+ARG GRAV_VERSION=1.7.53.5
+
 ARG GRAV_SKELETON_URL=https://github.com/getgrav/grav/releases/download/$GRAV_VERSION/grav-admin-v$GRAV_VERSION.zip
 
 # Create cron job for Grav maintenance scripts 
@@ -72,7 +73,11 @@ RUN chown www-data:www-data /var/www
 # Set user to www-data
 USER www-data
 
-# Install skeleton (auto-detects folder name), upgrade Grav to latest, install git-sync
+# Create cron job for Grav maintenance scripts
+RUN crontab \
+    && (crontab -l; echo "* * * * * cd /var/www/html;/usr/local/bin/php bin/grav scheduler 1>> /dev/null 2>&1") | crontab -
+
+# Init operations
 RUN cd /var/www/html/ && \
     wget $GRAV_SKELETON_URL -O skeleton.zip && \
     unzip skeleton.zip -d /tmp/skeleton && \
