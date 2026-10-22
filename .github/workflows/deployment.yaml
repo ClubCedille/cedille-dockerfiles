@@ -1,4 +1,3 @@
-# Manual build/push fo now
 name: Image build
 
 on:
@@ -10,84 +9,63 @@ on:
         type: choice
         options:
           - grav
-          - init-grav
           - vault
           - terraform-agent
           - mongo
       tag:
-        required: true
-        description: Version a tag l'image
-  # push:
-  #   tags:
-  #     - 'v*.*.*-*'
-
-env:
-  REGISTRY: ghcr.io/clubcedille
+        required: false
+        description: Tag custom (sinon utilise le SHA du commit)
+  push:
+    branches: [master]
+    paths:
+      - 'grav/**'
+      - 'vault/**'
+      - 'terraform-agent/**'
+      - 'mongo/**'
 
 jobs:
-  build-on-release:
+  detect-changes:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.changes.outputs.images }}
     steps:
-      - name: Check Out Repo
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
-
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKER_HUB_USERNAME }}
-      #     password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@3d100841f68d4548bf57e52eb27bd33ec5069f55
+      - uses: actions/checkout@v5
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-buildx
-
-      # - name: Get Tag Version
-      #   id: tag
-      #   run: |
-      #     FULL_VERSION=${GITHUB_REF#refs/tags/}
-      #     echo "Full version: $FULL_VERSION"
-      
-      #     VERSION=${FULL_VERSION#v}
-      #     VERSION=${VERSION%-grav*}
-      #     echo "Version to be used: $VERSION"
-      #     echo "VERSION=$VERSION" >> $GITHUB_ENV
-      
-      #     # Extract project name after '-'
-      #     SUFFIX=${FULL_VERSION#*-}
-      #     echo "Suffix: $SUFFIX"
-      #     echo "PROJECT_DIR=$SUFFIX" >> $GITHUB_ENV
-
-      - name: Build and push
-        id: docker_build
-        uses: docker/build-push-action@v6
-        with:
-          context: ./${{ inputs.image }}
-          file: ./${{ inputs.image }}/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ inputs.image }}:${{ inputs.tag }}
-            ${{ env.REGISTRY }}/${{ inputs.image }}:latest
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
-
-      - name: Refresh Cache
+          fetch-depth: 2
+      - id: changes
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          CHANGED=$(git diff --name-only HEAD~1 HEAD | cut -d'/' -f1 | sort -u)
+          IMAGES=()
+          for dir in grav vault terraform-agent mongo; do
+            if echo "$CHANGED" | grep -q "^${dir}$"; then
+              IMAGES+=("\"${dir}\"")
+            fi
+          done
+          echo "images=[$(IFS=,; echo "${IMAGES[*]}")]" >> $GITHUB_OUTPUT
 
-      - name: Image digest
-        run: echo ${{ steps.docker_build.outputs.digest }}
+  build-push:
+    if: github.event_name == 'push'
+    needs: detect-changes
+    strategy:
+      matrix:
+        image: ${{ fromJson(needs.detect-changes.outputs.images) }}
+    uses: ClubCedille/cedille-workflows/.github/workflows/build-push-ghcr.yaml@master
+    with:
+      container-name: ${{ matrix.image }}
+      context: ./${{ matrix.image }}
+      file: ./${{ matrix.image }}/Dockerfile
+    secrets: inherit
+
+  build-dispatch:
+    if: github.event_name == 'workflow_dispatch'
+    uses: ClubCedille/cedille-workflows/.github/workflows/build-push-ghcr.yaml@master
+    with:
+      container-name: ${{ inputs.image }}
+      context: ./${{ inputs.image }}
+      file: ./${{ inputs.image }}/Dockerfile
+    secrets: inherit
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true

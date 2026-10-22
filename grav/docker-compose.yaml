@@ -1,23 +1,17 @@
-version: '3.8'
-
 services:
-  grav-init:
-    build:
-      context: ./init-grav
-      dockerfile: Dockerfile
-    container_name: grav_init
-    volumes:
-      - grav_data:/var/www/html
-
   grav:
-    depends_on:
-      - grav-init
-    build: .
-    container_name: grav_cms
+    build:
+      context: .
+      args:
+        # Override GRAV_SKELETON_URL to test different skeletons:
+        #   Gateway: https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip
+        #   Blog:    https://github.com/getgrav/grav-skeleton-blog-site/releases/download/2.2.0/grav-skeleton-blog-site+admin-v2.2.0.zip
+        GRAV_SKELETON_URL: ${GRAV_SKELETON_URL:-https://github.com/getgrav/grav/releases/download/1.7.49.5/grav-admin-v1.7.49.5.zip}
     ports:
-      - "8080:80"
+      - "8080:8080"
     volumes:
       - grav_data:/var/www/html
+      - ./entrypoint.local.sh:/entrypoint.sh:ro
 
 volumes:
   grav_data:

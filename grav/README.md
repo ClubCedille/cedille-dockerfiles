@@ -1,28 +1,59 @@
 # Image Docker pour Grav CMS
 
-Ce répertoire contient un Dockerfile personnalisé conçu pour déployer une instance Grav CMS avec un thème squelette spécifié. C'est la solution standardisée que nous offrons aux autres clubs étudiants souhaitant héberger leur site web chez nous.
+Ce répertoire contient un Dockerfile pour déployer une instance Grav CMS. C'est
+la solution standardisée que nous offrons aux autres clubs étudiants souhaitant
+héberger leur site web chez nous.
 
-## Utilisation
-Pour utiliser cette configuration, suivez les étapes ci-dessous :
+## Construire l'image
 
-### Construire les Images Docker
-
-1. Construire l'Image du Conteneur d'Initilisation (grav-init): Ce conteneur est responsable de la préparation du squelette du thème Grav choisi.
+Par défaut, l'image utilise le package Grav Admin de base :
 
 ```bash
-cd ./init-grav
-docker build -t grav-init .
+docker build -t grav .
 ```
 
-2. Construire l'Image Principale de Grav CMS: Cette image contient le CMS Grav. À partir du dossier grav, exécuter : 
+Pour utiliser un squelette (skeleton) différent, passer l'URL en build arg :
+
 ```bash
-docker build --build-arg GRAV_SKELETON_URL=<VOTRE_URL> -t grav .
+docker build \
+  --build-arg GRAV_SKELETON_URL=https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip \
+  -t grav .
 ```
 
-### Docker Compose
+Les squelettes disponibles se trouvent sur
+[getgrav.org/downloads/skeletons](https://getgrav.org/downloads/skeletons). On
+recommande de choisir un squelette avec l'admin intégré pour faciliter la
+gestion du site (regarder pour les thèmes avec l'option `Download with admin`).
+Rendez vous sur le repo github du squelette pour trouver l'URL du package zip à
+utiliser.
 
-Utilisez docker-compose pour lancer les conteneurs :
+## Test local avec Docker Compose
+
 ```bash
-docker-compose up --build
+docker compose up --build
+
+# Squelette personnalisé
+GRAV_SKELETON_URL="https://github.com/getgrav/grav-skeleton-gateway-site/releases/download/1.0.1/grav-skeleton-gateway-site+admin-1.0.1.zip" \
+docker compose up --build
 ```
 
+Le site est accessible sur `http://localhost:8080`.
+
+> **Note :** Pour changer de squelette, supprimer le volume Docker au préalable
+> :
+> ```bash
+> docker compose down -v
+> ```
+> Sinon l'ancien contenu persiste dans le volume.
+
+## Déploiement en production (Kubernetes)
+
+En production, l'image est déployée avec Vault pour un workflow automatisé/sécurisé.
+L'entrypoint clone le contenu du site depuis un dépôt Git et configure les
+comptes utilisateurs depuis Vault.
+
+Variables d'environnement utilisées en production :
+- `GIT_VAULT_SECRET` : nom du secret Vault contenant la config git-sync
+- `ADMIN_VAULT_SECRET` : nom du secret Vault pour le compte admin
+- `SRE_VAULT_SECRET` : nom du secret Vault pour le compte SRE
+- `HEAD_BRANCH` : branche Git à utiliser (défaut : `main`)

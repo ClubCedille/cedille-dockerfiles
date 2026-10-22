@@ -7,7 +7,8 @@ services:
         - GRAV_SKELETON_FOLDER=grav-skeleton-deliver-site+admin
     container_name: grav_local_dev
     environment:
-      - CONTENT_REPO=https://github.com/ClubCedille/raconteurs.etsmtl.ca.git
+      - CONTENT_REPO=https://github.com/ClubCedille/crabe.demo.prodv2.cedille.club.git
+      - HOST_UID=${UID:-1000}
     ports:
       - "8080:80"
     volumes:
