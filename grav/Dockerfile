@@ -1,4 +1,4 @@
-FROM php:8.4.27-apache-bookworm
+FROM php:8.6.0-apache-bookworm
 LABEL maintainer="Andy Miller <rhuk@getgrav.org> (@rhukster)"
 
 
